@@ -38,7 +38,7 @@ public class FraudDetectionStream {
         KStream<String, String> fraudStream = transactionStream
                 .filter((key, value) -> isSuspicious(value))
                 .peek((key, value) ->
-                        log.warn("FRAUD ALERT - transactionId={} , value={}", key, value));
+                        log.warn("⚠️ FRAUD ALERT - transactionId={} , value={}", key, value));
 
         // Step 4: Emit detected fraudulent transactions to an output topic.
         // Downstream consumers can subscribe to "fraud-alerts".
