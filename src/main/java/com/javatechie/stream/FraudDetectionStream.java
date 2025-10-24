@@ -35,28 +35,24 @@ public class FraudDetectionStream {
                 .stream("transactions");
 
         // Step 2: Process the stream to detect fraudulent transactions.
-        // The filter uses a predicate that checks the transaction payload.
-        // Step 3: Use peek() to emit alert logs for every detected fraud before sending to the output topic.
         KStream<String, String> fraudStream = transactionStream
                 .filter((key, value) -> isFraudulent(value))
                 .peek((key, value) ->
-                        log.warn("FRAUD ALERT - transactionId={} , value={}", key,  value));
+                        log.warn("FRAUD ALERT - transactionId={} , value={}", key, value));
 
         // Step 4: Emit detected fraudulent transactions to an output topic.
         // Downstream consumers can subscribe to "fraud-alerts".
         fraudStream.to("fraud-alerts");
 
-        // Step 5: Return the original transaction stream.
         // Returning the original stream allows further topology wiring or testing.
         return transactionStream;
 
     }
 
 
-
     private boolean isFraudulent(String value) {
         try {
-            Transaction transaction=OBJECT_MAPPER
+            Transaction transaction = OBJECT_MAPPER
                     .readValue(value, Transaction.class); // validate JSON
             return transaction.amount() > 10000; // simple fraud rule
         } catch (Exception e) {
