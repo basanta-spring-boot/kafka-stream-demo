@@ -36,7 +36,7 @@ public class FraudDetectionStream {
 
         // Step 2: Process the stream to detect fraudulent transactions.
         KStream<String, String> fraudStream = transactionStream
-                .filter((key, value) -> isFraudulent(value))
+                .filter((key, value) -> isSuspicious(value))
                 .peek((key, value) ->
                         log.warn("FRAUD ALERT - transactionId={} , value={}", key, value));
 
@@ -50,7 +50,7 @@ public class FraudDetectionStream {
     }
 
 
-    private boolean isFraudulent(String value) {
+    private boolean isSuspicious(String value) {
         try {
             Transaction transaction = OBJECT_MAPPER
                     .readValue(value, Transaction.class); // validate JSON
