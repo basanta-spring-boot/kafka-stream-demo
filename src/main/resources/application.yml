@@ -5,7 +5,7 @@ spring:
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 #    consumer:
 #      group-id: fraud-alert-group
 #      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -13,5 +13,7 @@ spring:
     streams:
       application-id: fraud-detection-streams
       properties:
+#        default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+#        default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
         default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-        default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        default.value.serde: org.springframework.kafka.support.serializer.JsonSerde

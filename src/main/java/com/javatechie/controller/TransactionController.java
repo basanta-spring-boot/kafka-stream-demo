@@ -14,10 +14,10 @@ import java.util.Random;
 @RequestMapping("/api/transactions")
 public class TransactionController {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, Transaction> kafkaTemplate;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public TransactionController(KafkaTemplate<String, String> kafkaTemplate) {
+    public TransactionController(KafkaTemplate<String, Transaction> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -27,8 +27,8 @@ public class TransactionController {
             String transactionId = "txn-" + System.currentTimeMillis() + "-" + i;
             double amount = 8000 + new Random().nextDouble() * (11000 - 8000);
             Transaction txn = new Transaction(transactionId, "USER_" + i, amount, LocalDateTime.now().toString());
-            String txnJson = mapper.writeValueAsString(txn);
-            kafkaTemplate.send("transactions", transactionId, txnJson);
+//            String txnJson = mapper.writeValueAsString(txn);
+            kafkaTemplate.send("transactions", transactionId, txn);
         }
 
         return "✅ Transaction sent to Kafka!";

@@ -3,11 +3,15 @@ package com.javatechie.stream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javatechie.model.Transaction;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Produced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafkaStreams;
+import org.springframework.kafka.support.serializer.JsonSerde;
 
 @Configuration
 @EnableKafkaStreams
@@ -27,36 +31,20 @@ public class FraudDetectionStream {
      * 5. Return the original transaction stream (useful for testing or further processing).
      */
     @Bean
-    public KStream<String, String> fraudDetectStream(StreamsBuilder builder) {
+    public KStream<String, Transaction> fraudDetectStream(StreamsBuilder builder) {
 
-        // Step 1: Read messages from the input topic.
-        // The stream key and value are both strings in this example.
-        KStream<String, String> transactionStream = builder
-                .stream("transactions");
+        var transactionSerde = new JsonSerde<>(Transaction.class);
 
-        // Step 2: Process the stream to detect fraudulent transactions.
-        KStream<String, String> fraudStream = transactionStream
-                .filter((key, value) -> isSuspicious(value))
-                .peek((key, value) ->
-                        log.warn("⚠️ FRAUD ALERT - transactionId={} , value={}", key, value));
+        KStream<String, Transaction> stream = builder
+                .stream("transactions", Consumed.with(Serdes.String(), transactionSerde));
 
-        // Step 4: Emit detected fraudulent transactions to an output topic.
-        // Downstream consumers can subscribe to "fraud-alerts".
-        fraudStream.to("fraud-alerts");
+        stream.filter((key, tx) -> tx.amount() > 10000)
+                .peek((key, tx) -> log.warn("⚠️ FRAUD ALERT for {}", tx))
+                .to("fraud-alerts", Produced.with(Serdes.String(), transactionSerde));
 
-        // Returning the original stream allows further topology wiring or testing.
-        return transactionStream;
 
+        return stream;
     }
 
 
-    private boolean isSuspicious(String value) {
-        try {
-            Transaction transaction = OBJECT_MAPPER
-                    .readValue(value, Transaction.class); // validate JSON
-            return transaction.amount() > 10000; // simple fraud rule
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }
