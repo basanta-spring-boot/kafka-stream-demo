@@ -4,8 +4,10 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
     producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: com.javatechie.serdes.TransactionSerializer
 #    consumer:
 #      group-id: fraud-alert-group
 #      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -15,5 +17,7 @@ spring:
       properties:
 #        default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
 #        default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+#        default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+#        default.value.serde: org.springframework.kafka.support.serializer.JsonSerde
         default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-        default.value.serde: org.springframework.kafka.support.serializer.JsonSerde
+        default.value.serde: com.javatechie.serdes.TransactionSerde

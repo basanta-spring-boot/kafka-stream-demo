@@ -2,6 +2,7 @@ package com.javatechie.stream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javatechie.model.Transaction;
+import com.javatechie.serdes.TransactionSerde;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -35,13 +36,20 @@ public class FraudDetectionStream {
 
         var transactionSerde = new JsonSerde<>(Transaction.class);
 
-        KStream<String, Transaction> stream = builder
-                .stream("transactions", Consumed.with(Serdes.String(), transactionSerde));
+        //approach 1
+//        KStream<String, Transaction> stream = builder
+//                .stream("transactions", Consumed.with(Serdes.String(), transactionSerde));
+//
+//        stream.filter((key, tx) -> tx.amount() > 10000)
+//                .peek((key, tx) -> log.warn("⚠️ FRAUD ALERT for {}", tx))
+//                .to("fraud-alerts", Produced.with(Serdes.String(), transactionSerde));
+
+        //approach 2
+        KStream<String, Transaction> stream = builder.stream("transactions", Consumed.with(Serdes.String(), new TransactionSerde()));
 
         stream.filter((key, tx) -> tx.amount() > 10000)
                 .peek((key, tx) -> log.warn("⚠️ FRAUD ALERT for {}", tx))
                 .to("fraud-alerts", Produced.with(Serdes.String(), transactionSerde));
-
 
         return stream;
     }
