@@ -14,9 +14,9 @@ public class KafkaConfig {
         return new NewTopic("transactions", 3, (short) 1);
     }
 
-    @Bean
-    public NewTopic createFraudAlertsTopic() {
-        return new NewTopic("fraud-alerts", 3, (short) 1);
-    }
+//    @Bean
+//    public NewTopic createFraudAlertsTopic() {
+//        return new NewTopic("fraud-alerts", 3, (short) 1);
+//    }
 
 }

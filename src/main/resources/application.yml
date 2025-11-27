@@ -5,7 +5,7 @@ spring:
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: com.javatechie.serdes.TransactionSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     streams:
       application-id: fraud-detection-streams
       properties:
